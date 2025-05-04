@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -93,7 +54,7 @@
         .nav-menu {
             position: fixed;
             top: 0;
-            left: -250px;
+            left: -100%;
             width: 250px;
             height: 100%;
             background: var(--nav-bg);
@@ -151,7 +112,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            animation: fadeIn 2s ease-in;
         }
         header h1 {
             font-size: 4.5em;
@@ -159,11 +119,16 @@
             font-family: 'Poppins', sans-serif;
             font-weight: 700;
             color: var(--accent-color);
+            animation: light-hero-text 1.5s ease-out;
         }
         header p {
             font-size: 1.6em;
             margin: 0.5em 0;
             font-weight: 300;
+            animation: light-hero-text 1.5s ease-out 0.3s;
+        }
+        [data-theme="dark"] header h1, [data-theme="dark"] header p {
+            animation: dark-hero-text 1.5s ease-out;
         }
         .container {
             max-width: 1000px;
@@ -177,10 +142,18 @@
             border-radius: 15px;
             box-shadow: 0 6px 20px var(--shadow-color);
             transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+            animation: light-card-slide 0.8s ease-out;
+        }
+        [data-theme="dark"] .portfolio-item {
+            animation: dark-card-glow 0.8s ease-out;
         }
         .portfolio-item:hover {
             transform: scale(1.02);
             box-shadow: 0 8px 25px var(--shadow-color);
+            border: 2px solid var(--accent-color);
+        }
+        [data-theme="dark"] .portfolio-item:hover {
+            box-shadow: 0 8px 25px rgba(0, 221, 235, 0.3);
         }
         .portfolio-item img {
             max-width: 100%;
@@ -189,13 +162,16 @@
         }
         section {
             margin-bottom: 4em;
-            animation: slideIn 1s ease-out;
         }
         h2 {
             font-family: 'Poppins', sans-serif;
             color: var(--accent-color);
             font-size: 2.5em;
             margin-bottom: 1em;
+            animation: light-hero-text 1s ease-out;
+        }
+        [data-theme="dark"] h2 {
+            animation: dark-hero-text 1s ease-out;
         }
         h3 {
             font-family: 'Poppins', sans-serif;
@@ -206,10 +182,27 @@
         .company-highlight {
             color: var(--accent-color);
             font-weight: 700;
+            position: relative;
             transition: transform 0.3s;
         }
         .company-highlight:hover {
             transform: scale(1.05);
+        }
+        [data-theme="light"] .company-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s;
+        }
+        [data-theme="light"] .company-highlight:hover::after {
+            width: 100%;
+        }
+        [data-theme="dark"] .company-highlight:hover {
+            text-shadow: 0 0 8px var(--accent-color);
         }
         .skills-grid {
             display: flex;
@@ -224,11 +217,18 @@
             font-size: 1em;
             font-weight: 500;
             transition: background 0.3s, color 0.3s, transform 0.3s;
+            animation: light-skill-pop 0.5s ease-out;
+        }
+        [data-theme="dark"] .skill-tag {
+            animation: dark-skill-ripple 0.5s ease-out;
         }
         .skill-tag:hover {
             background: var(--accent-color);
             color: #ffffff;
             transform: translateY(-2px);
+        }
+        [data-theme="dark"] .skill-tag:hover {
+            box-shadow: 0 0 10px var(--accent-color);
         }
         .contact-links {
             display: flex;
@@ -241,9 +241,13 @@
             fill: var(--text-color);
             transition: transform 0.3s, fill 0.3s;
         }
-        .contact-icon:hover {
-            transform: scale(1.1);
+        [data-theme="light"] .contact-icon:hover {
+            transform: rotate(15deg);
             fill: var(--accent-color);
+        }
+        [data-theme="dark"] .contact-icon:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 5px var(--accent-color));
         }
         footer {
             background: var(--card-bg);
@@ -287,38 +291,97 @@
             z-index: 1000;
             font-size: 1.4em;
             color: var(--text-color);
-            transition: transform 0.3s, background 0.3s, color 0.3s;
+            transition: transform 0.5s, background 0.3s, color 0.3s;
         }
         .theme-toggle:hover {
             transform: scale(1.1);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .theme-toggle:active {
+            animation: spin 0.5s linear;
         }
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        /* Theme-Specific Animations */
+        @keyframes light-hero-text {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
+        @keyframes dark-hero-text {
+            0% { opacity: 0; text-shadow: none; }
+            100% { opacity: 1; text-shadow: 0 0 10px var(--accent-color); }
+        }
+        @keyframes light-card-slide {
+            0% { opacity: 0; transform: translateX(-20px); }
+            80% { transform: translateX(5px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes dark-card-glow {
+            0% { opacity: 0; box-shadow: none; }
+            100% { opacity: 1; box-shadow: 0 0 15px rgba(0, 221, 235, 0.2); }
+        }
+        @keyframes light-skill-pop {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes dark-skill-ripple {
+            0% { opacity: 0; transform: translateX(-10px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
             .nav-menu {
-                width: 200px;
-                left: -200px;
+                width: 80%;
+                max-width: 200px;
+                left: -100%;
             }
             .nav-menu.active {
                 left: 0;
             }
-            header h1 { font-size: 3em; }
-            header p { font-size: 1.3em; }
-            header { padding: 5em 1em; }
-            h2 { font-size: 2em; }
-            .container { padding: 2em 1em; }
-            .hamburger { top: 15px; left: 15px; }
-            .theme-toggle { top: 15px; right: 15px; }
-            .skills-grid { gap: 0.8em; }
-            .skill-tag { font-size: 0.9em; }
-            .contact-links { gap: 1em; }
-            .contact-icon { width: 20px; height: 20px; }
+            header {
+                padding: 5em 1em;
+                min-height: 80vh;
+            }
+            header h1 {
+                font-size: 2.5em;
+                line-height: 1.2;
+            }
+            header p {
+                font-size: 1.2em;
+                line-height: 1.4;
+            }
+            .cta-button {
+                padding: 0.8em 1.5em;
+                font-size: 0.9em;
+            }
+            h2 {
+                font-size: 2em;
+            }
+            .container {
+                padding: 2em 1em;
+            }
+            .hamburger {
+                top: 15px;
+                left: 15px;
+            }
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+            }
+            .skills-grid {
+                gap: 0.8em;
+            }
+            .skill-tag {
+                font-size: 0.9em;
+            }
+            .contact-links {
+                gap: 1em;
+            }
+            .contact-icon {
+                width: 20px;
+                height: 20px;
+            }
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
@@ -464,8 +527,14 @@
         function toggleNav() {
             const navMenu = document.querySelector('.nav-menu');
             const overlay = document.querySelector('.overlay');
-            navMenu.classList.toggle('active');
-            overlay.classList.toggle('active');
+            const isActive = navMenu.classList.contains('active');
+            if (isActive) {
+                navMenu.classList.remove('active');
+                overlay.classList.remove('active');
+            } else {
+                navMenu.classList.add('active');
+                overlay.classList.add('active');
+            }
         }
         function toggleTheme() {
             const body = document.body;
@@ -489,6 +558,11 @@
             } else {
                 document.querySelector('.theme-toggle').textContent = '🌙';
             }
+
+            const navMenu = document.querySelector('.nav-menu');
+            const overlay = document.querySelector('.overlay');
+            navMenu.classList.remove('active');
+            overlay.classList.remove('active');
         };
     </script>
 </body>
