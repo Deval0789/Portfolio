@@ -1,0 +1,495 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deval Soni - Software Developer Portfolio</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --card-bg: #1e1e1e;
+            --accent-color: #00ddeb;
+            --nav-bg: #1a1a1a;
+            --shadow-color: rgba(0,0,0,0.2);
+            --overlay-bg: rgba(0, 0, 0, 0.5);
+        }
+        [data-theme="light"] {
+            --bg-color: #fafafa;
+            --text-color: #1a1a1a;
+            --card-bg: #f0f4f8;
+            --accent-color: #008080;
+            --nav-bg: #e8ecef;
+            --shadow-color: rgba(0,0,0,0.1);
+            --overlay-bg: rgba(0, 0, 0, 0.3);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+        .hamburger {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 2000;
+            cursor: pointer;
+            padding: 10px;
+            background: var(--card-bg);
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: var(--text-color);
+            margin: 5px 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: var(--nav-bg);
+            padding: 2em 1em;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease-in-out;
+            z-index: 1500;
+        }
+        .nav-menu.active {
+            left: 0;
+        }
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.2em;
+            margin: 1em 0;
+            padding: 0.5em 1em;
+            border-radius: 5px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .nav-menu a:hover {
+            background: var(--accent-color);
+            color: #ffffff;
+        }
+        .close-btn {
+            align-self: flex-end;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 0.5em;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--overlay-bg);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        header {
+            background: var(--bg-color);
+            text-align: center;
+            padding: 8em 2em;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 2s ease-in;
+        }
+        header h1 {
+            font-size: 4.5em;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        header p {
+            font-size: 1.6em;
+            margin: 0.5em 0;
+            font-weight: 300;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3em 2em;
+        }
+        .portfolio-item {
+            background: var(--card-bg);
+            padding: 2em;
+            margin: 1.5em 0;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px var(--shadow-color);
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+        }
+        .portfolio-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+        .portfolio-item img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 1em;
+        }
+        section {
+            margin-bottom: 4em;
+            animation: slideIn 1s ease-out;
+        }
+        h2 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--accent-color);
+            font-size: 2.5em;
+            margin-bottom: 1em;
+        }
+        h3 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            margin: 0.5em 0;
+            font-size: 1.5em;
+        }
+        .company-highlight {
+            color: var(--accent-color);
+            font-weight: 700;
+            transition: transform 0.3s;
+        }
+        .company-highlight:hover {
+            transform: scale(1.05);
+        }
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1em;
+        }
+        .skill-tag {
+            background: var(--card-bg);
+            color: var(--accent-color);
+            padding: 0.5em 1em;
+            border-radius: 20px;
+            font-size: 1em;
+            font-weight: 500;
+            transition: background 0.3s, color 0.3s, transform 0.3s;
+        }
+        .skill-tag:hover {
+            background: var(--accent-color);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        .contact-links {
+            display: flex;
+            gap: 1.5em;
+            margin-top: 1em;
+        }
+        .contact-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-color);
+            transition: transform 0.3s, fill 0.3s;
+        }
+        .contact-icon:hover {
+            transform: scale(1.1);
+            fill: var(--accent-color);
+        }
+        footer {
+            background: var(--card-bg);
+            color: var(--text-color);
+            text-align: center;
+            padding: 2em;
+            width: 100%;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 1em 2em;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 1.5em;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #00a3a3;
+            transform: translateY(-2px);
+        }
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #00a3a3;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 1000;
+            font-size: 1.4em;
+            color: var(--text-color);
+            transition: transform 0.3s, background 0.3s, color 0.3s;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @media (max-width: 768px) {
+            .nav-menu {
+                width: 200px;
+                left: -200px;
+            }
+            .nav-menu.active {
+                left: 0;
+            }
+            header h1 { font-size: 3em; }
+            header p { font-size: 1.3em; }
+            header { padding: 5em 1em; }
+            h2 { font-size: 2em; }
+            .container { padding: 2em 1em; }
+            .hamburger { top: 15px; left: 15px; }
+            .theme-toggle { top: 15px; right: 15px; }
+            .skills-grid { gap: 0.8em; }
+            .skill-tag { font-size: 0.9em; }
+            .contact-links { gap: 1em; }
+            .contact-icon { width: 20px; height: 20px; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="hamburger" onclick="toggleNav()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <nav class="nav-menu">
+        <span class="close-btn" onclick="toggleNav()">✕</span>
+        <a href="#home" onclick="toggleNav()">Home</a>
+        <a href="#about" onclick="toggleNav()">About</a>
+        <a href="#experience" onclick="toggleNav()">Experience</a>
+        <a href="#projects" onclick="toggleNav()">Projects</a>
+        <a href="#education" onclick="toggleNav()">Education</a>
+        <a href="#contact" onclick="toggleNav()">Contact</a>
+    </nav>
+    <div class="overlay" onclick="toggleNav()"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <header id="home">
+        <h1>Deval Soni</h1>
+        <p>Software Developer | Innovator | Problem Solver</p>
+        <a href="#contact" class="cta-button">Get in Touch</a>
+    </header>
+    <div class="container">
+        <section id="about">
+            <h2>About Me</h2>
+            <p>I'm Deval Soni, a software developer based in Pune, India, with a passion for crafting innovative solutions in IoT, Machine Learning, and API development. With over two years as a Technical Consultant at Perficient India, prior experience as an Apigee Developer at Bitwise India, and extensive API development roles at Velociter Solutions and Prevoyance Technologies, I excel in delivering scalable, high-impact software solutions. I hold a degree from Ms Ramaiah Institute of Technology and am driven by a love for technology and problem-solving. In my free time, I explore emerging tech trends and contribute to open-source projects.</p>
+        </section>
+        <section id="experience">
+            <h2>Experience</h2>
+            <div class="portfolio-item">
+                <h3>Technical Consultant at <span class="company-highlight">Perficient India</span></h3>
+                <p>Feb 2023 – Present, Pune, Maharashtra, India</p>
+                <p>Contributing to digital transformation projects for global clients, focusing on integration, APIs, and cloud-based solutions. Collaborated with cross-functional teams to deliver scalable software solutions, leveraging technologies like Java, APIs, and DevOps practices. Improved project efficiency through optimized workflows and agile methodologies.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Apigee Developer at <span class="company-highlight">Bitwise India</span></h3>
+                <p>Oct 2022 – Feb 2023, Pune, Maharashtra, India</p>
+                <p>Developed and managed API solutions using Google’s Apigee platform, ensuring secure and scalable API integrations for enterprise clients. Implemented API proxies, policies, and analytics to enhance performance and security, while working closely with stakeholders to meet project requirements.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Software Developer at <span class="company-highlight">Velociter Solutions Pvt. Ltd.</span></h3>
+                <p>Jun 2020 – Sep 2022, Hyderabad, Telangana, India</p>
+                <p>Worked on CA API Gateway and Google Apigee as an API developer for ICICI Bank. Responsibilities included:
+                <ul>
+                    <li>Understanding requirements, designing, and developing APIs.</li>
+                    <li>Designing, developing, configuring, and troubleshooting policies using CA API Gateway and Google Apigee.</li>
+                    <li>Building and creating shared flows for error handling, security, and other scenarios.</li>
+                    <li>Tracking and communicating work status and progress to clients using JIRA.</li>
+                    <li>Converting web services from SOAP to REST or vice-versa using CA API Gateway and Google Apigee.</li>
+                    <li>Creating custom policies in Java, JavaScript, Python, and other languages in Apigee.</li>
+                </ul>
+                </p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Software Developer at <span class="company-highlight">Prevoyance Technologies</span></h3>
+                <p>Feb 2019 – Jun 2019, Nagpur, Maharashtra, India</p>
+                <p>Trained as an API developer, focusing on CA API Gateway. Responsibilities included:
+                <ul>
+                    <li>Learning and implementing API development using CA API Gateway.</li>
+                    <li>Implementing API key-based authentication and OAuth.</li>
+                    <li>Implementing REST API gateway using on-premise CA API.</li>
+                    <li>Understanding requirements, designing, and developing APIs.</li>
+                    <li>Designing, developing, configuring, and troubleshooting policies using CA API Gateway.</li>
+                </ul>
+                </p>
+            </div>
+        </section>
+        <section id="projects">
+            <h2>Projects</h2>
+            <div class="portfolio-item">
+                <h3>Smart Street Light using ZigBee</h3>
+                <p>Developed an IoT-based street light system with video analytics for real-time object detection, human face counting, and fight detection. Utilized Machine Learning to enhance urban security and efficiency. Technologies: IoT, Machine Learning, ZigBee.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Smart Agriculture using Arduino Uno</h3>
+                <p>Designed a smart agriculture system using Arduino Uno to monitor soil moisture levels and automate irrigation, optimizing water usage and improving crop yield. Technologies: IoT, Arduino.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Smart Health Application</h3>
+                <p>Built an Android app for health issue prediction, enabling doctor consultations via email and emergency calls for improved healthcare access. Technologies: Android, Java.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>E-TUTOR SYSTEM</h3>
+                <p>Created an online tutoring platform with E-Book facilities and real-time communication, enhancing educational accessibility. Technologies: Web Development, Real-Time Communication.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Medical Store Management System</h3>
+                <p>Developed a Java-based desktop application to manage inventory, sales, and stock for medical stores, streamlining operations. Technologies: Java, Desktop Application.</p>
+            </div>
+            <div class="portfolio-item">
+                <h3>Sports Time: A Sports Website</h3>
+                <p>Built a PHP-based sports website providing Fantasy League features, news, fixtures, and player details for sports enthusiasts. Technologies: PHP, Web Development.</p>
+            </div>
+        </section>
+        <section id="education">
+            <h2>Education</h2>
+            <div class="portfolio-item">
+                <h3>Ms Ramaiah Institute of Technology</h3>
+                <p>Completed a degree in [Your Field, e.g., Computer Science or related], equipping me with a strong foundation in software development and problem-solving.</p>
+            </div>
+        </section>
+        <section id="skills">
+            <h2>Skills</h2>
+            <div class="skills-grid">
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">Java</span>
+                <span class="skill-tag">MySQL</span>
+                <span class="skill-tag">Software Development</span>
+                <span class="skill-tag">Machine Learning</span>
+                <span class="skill-tag">Quality Assurance</span>
+                <span class="skill-tag">Debugging</span>
+                <span class="skill-tag">Team Collaboration</span>
+                <span class="skill-tag">Communication</span>
+            </div>
+        </section>
+        <section id="contact">
+            <h2>Contact</h2>
+            <p>Let's collaborate and discuss new ideas! Feel free to reach out over email.</p>
+            <p>Email: <a href="mailto:deval0789@gmail.com">deval0789@gmail.com</a></p>
+            <p>LinkedIn: <a href="https://www.linkedin.com/in/deval-soni-956238142/">Deval Soni</a></p>
+            <div class="contact-links">
+                <a href="https://www.linkedin.com/in/deval-soni-956238142/" target="_blank">
+                    <svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-1.337-.478-2.251-1.675-2.251-.914 0-1.46.614-1.702 1.207-.087.214-.108.428-.108.642v6.006h-3s.04-10.297 0-11.363h3v1.61c.398-.614 1.108-1.49 2.695-1.49 1.968 0 3.44 1.286 3.44 4.042v7.201z"/>
+                    </svg>
+                </a>
+                <a href="mailto:deval0789@gmail.com">
+                    <svg class="contact-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.574l-12-9.725v15.438h24v-15.438l-12 9.725z"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+    </div>
+    <footer>
+        <p>© 2025 Deval Soni. All rights reserved.</p>
+    </footer>
+    <script>
+        function toggleNav() {
+            const navMenu = document.querySelector('.nav-menu');
+            const overlay = document.querySelector('.overlay');
+            navMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const themeToggle = document.querySelector('.theme-toggle');
+            if (currentTheme === 'light') {
+                body.removeAttribute('data-theme');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.querySelector('.theme-toggle').textContent = '☀️';
+            } else {
+                document.querySelector('.theme-toggle').textContent = '🌙';
+            }
+        };
+    </script>
+</body>
+</html>
