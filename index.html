@@ -7,13 +7,13 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <style>
         :root {
-            --bg-color: #F5F5DC; /* Beige background */
-            --text-color: #4A2C2A; /* Dark brown (coffee-like) font */
-            --card-bg: #EDE4C9; /* Slightly darker beige for cards */
-            --accent-color: #008080; /* Teal for headings and highlights */
-            --nav-bg: #EDE4C9; /* Match card background */
-            --shadow-color: rgba(74, 44, 42, 0.1); /* Brown-tinted shadow */
-            --overlay-bg: rgba(74, 44, 42, 0.3); /* Brown-tinted overlay */
+            --bg-color: #F5F5DC; 
+            --text-color: #4A2C2A; 
+            --card-bg: #EDE4C9; 
+            --accent-color: #008080; 
+            --nav-bg: #EDE4C9; 
+            --shadow-color: rgba(74, 44, 42, 0.1); 
+            --overlay-bg: rgba(74, 44, 42, 0.3);
         }
         [data-theme="dark"] {
             --bg-color: transparent;
@@ -185,6 +185,16 @@
             max-width: 100%;
             border-radius: 10px;
             margin-bottom: 1em;
+        }
+        .portfolio-item ul {
+            margin: 0.5em 0 0 1.5em;
+            padding: 0;
+            list-style-type: disc;
+            color: var(--text-color);
+        }
+        .portfolio-item ul li {
+            margin-bottom: 0.5em;
+            line-height: 1.5;
         }
         section {
             margin-bottom: 4em;
@@ -404,7 +414,7 @@
             0% { opacity: 0; transform: translateX(-10px); }
             100% { opacity: 1; transform: translateX(0); }
         }
-        /* Mobile Responsiveness */
+
         @media (max-width: 768px) {
             .nav-menu {
                 width: 80%;
@@ -485,7 +495,6 @@
         <span></span>
     </div>
     <nav class="nav-menu">
-        <!-- <span class="close-btn" onclick="toggleNav()">✕</span> -->
         <span class="close-btn" onclick="toggleNav()"></span>
         <a href="#home" onclick="toggleNav()">Home</a>
         <a href="#about" onclick="toggleNav()">About</a>
@@ -511,29 +520,50 @@
     <div class="container">
         <section id="about">
             <h2>About Me</h2>
-            <p>I'm Deval Soni, a software developer based in Pune, India, with a passion for crafting innovative solutions in API developement, IoT and Machine Learning. With over two years as a Technical Consultant at Perficient India, prior experience as an Apigee Developer at Bitwise India, and extensive API development roles at Velociter Solutions and Prevoyance Technologies, I excel in delivering scalable, high-impact software solutions. I hold a degree from Ms Ramaiah Institute of Technology and am driven by a love for technology and problem-solving. In my free time, I explore emerging tech trends and contribute to open-source projects.</p>
+            <p>I'm Deval Soni, a software developer based in Pune, India, with a passion for crafting innovative solutions in API development, IoT, and Machine Learning. With over two years as a Technical Consultant at Perficient India, prior experience as an Apigee Developer at Bitwise India, and extensive API development roles at Velociter Solutions and Prevoyance Technologies, I excel in delivering scalable, high-impact software solutions. I hold a degree from the MS Ramaiah Institute of Technology and am driven by a love for technology and problem-solving. In my free time, I explore emerging tech trends and contribute to open-source projects.</p>
         </section>
         <section id="experience">
             <h2>Experience</h2>
             <div class="portfolio-item">
                 <h3>Technical Consultant at <span class="company-highlight">Perficient India</span></h3>
                 <p>Feb 2023 – Present, Pune, Maharashtra, India</p>
-                <p>Contributing to digital transformation projects for global clients, focusing on integration, APIs, and cloud-based solutions. Collaborated with cross-functional teams to deliver scalable software solutions, leveraging technologies like Java, APIs, and DevOps practices. Improved project efficiency through optimized workflows and agile methodologies.</p>
+                <ul>
+                    <li>Contributed to digital transformation projects for global clients, focusing on integration, APIs, and cloud-based solutions.</li>
+                    <li>Collaborated with cross-functional teams to deliver scalable software solutions, leveraging technologies like Java, APIs, and DevOps practices.</li>
+                    <li>Improved project efficiency through optimized workflows and agile methodologies.</li>
+                </ul>
             </div>
             <div class="portfolio-item">
                 <h3>Apigee Developer at <span class="company-highlight">Bitwise India</span></h3>
                 <p>Oct 2022 – Feb 2023, Pune, Maharashtra, India</p>
-                <p>Developed and managed API solutions using Google’s Apigee platform, ensuring secure and scalable API integrations for enterprise clients. Implemented API proxies, policies, and analytics to enhance performance and security, while working closely with stakeholders to meet project requirements.</p>
+                <ul>
+                    <li>Developed and managed API solutions using Google’s Apigee platform, ensuring secure and scalable API integrations for enterprise clients.</li>
+                    <li>Implemented API proxies, policies, and analytics to enhance performance and security.</li>
+                    <li>Worked closely with stakeholders to meet project requirements.</li>
+                </ul>
             </div>
             <div class="portfolio-item">
                 <h3>Software Developer at <span class="company-highlight">Velociter Solutions Pvt. Ltd.</span></h3>
                 <p>Jun 2020 – Sep 2022, Hyderabad, Telangana, India</p>
-                <p>As an API developer for ICICI Bank, I worked on CA API Gateway and Google Apigee, where I focused on understanding requirements, designing, and developing APIs to meet client needs. My role involved designing, developing, configuring, and troubleshooting policies using both CA API Gateway and Google Apigee, ensuring robust and secure API integrations. I built and created shared flows to handle errors, enhance security, and manage various scenarios effectively. Additionally, I tracked and communicated work status and progress to clients using JIRA, converted web services from SOAP to REST or vice-versa using CA API Gateway and Google Apigee, and created custom policies in Java, JavaScript, Python, and other languages in Apigee to support project requirements.</p>
+                <ul>
+                    <li>Worked as an API developer for ICICI Bank on CA API Gateway and Google Apigee, focusing on understanding requirements, designing, and developing APIs to meet client needs.</li>
+                    <li>Designed, developed, configured, and troubleshot policies using both CA API Gateway and Google Apigee, ensuring robust and secure API integrations.</li>
+                    <li>Built and created shared flows to handle errors, enhance security, and manage various scenarios effectively.</li>
+                    <li>Tracked and communicated work status and progress to clients using JIRA.</li>
+                    <li>Converted web services from SOAP to REST or vice-versa using CA API Gateway and Google Apigee.</li>
+                    <li>Created custom policies in Java, JavaScript, Python, and other languages in Apigee to support project requirements.</li>
+                </ul>
             </div>
             <div class="portfolio-item">
                 <h3>Software Developer at <span class="company-highlight">Prevoyance Technologies</span></h3>
                 <p>Feb 2019 – Jun 2019, Nagpur, Maharashtra, India</p>
-                <p>During my training as an API developer focusing on CA API Gateway, I concentrated on learning and implementing API development to build a strong foundation in API technologies. I implemented API key-based authentication and OAuth to secure API interactions, and worked on establishing a REST API gateway using on-premise CA API infrastructure. My responsibilities included understanding requirements, designing, and developing APIs to meet project goals, as well as designing, developing, configuring, and troubleshooting policies using CA API Gateway to ensure seamless and efficient API operations.</p>
+                <ul>
+                    <li>Trained as an API developer focusing on CA API Gateway, concentrating on learning and implementing API development to build a strong foundation in API technologies.</li>
+                    <li>Implemented API key-based authentication and OAuth to secure API interactions.</li>
+                    <li>Worked on establishing a REST API gateway using on-premise CA API infrastructure.</li>
+                    <li>Understood requirements, designed, and developed APIs to meet project goals.</li>
+                    <li>Designed, developed, configured, and troubleshoot policies using CA API Gateway to ensure seamless and efficient API operations.</li>
+                </ul>
             </div>
         </section>
         <section id="projects">
